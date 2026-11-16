@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>QuickApprove - Observe</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta http-equiv="refresh" content="5">
+</head>
+<body>
+  <h1>QuickApprove &mdash; Observe dashboard</h1>
+  <p class="sub">Flag watched: <code>{{ flag_key }}</code>. Auto-refreshes every 5s. This is what you'd actually watch to decide whether to keep rolling out or roll back.</p>
+
+  <div class="cards">
+    {% for variation_label, is_on in [("Flag ON (instant approval enabled)", true), ("Flag OFF (manual review only)", false)] %}
+      {% set s = stats.get(is_on) %}
+      <div class="card {{ 'on' if is_on else 'off' }}">
+        <h2>{{ variation_label }}</h2>
+        {% if s %}
+          <table>
+            <tr><td>Decisions</td><td>{{ s.total }}</td></tr>
+            <tr><td>Auto-approved</td><td>{{ s.auto_approved }} ({{ s.auto_approval_rate }}%)</td></tr>
+            <tr><td>Processor errors</td><td>{{ s.errors }} ({{ s.error_rate }}%)</td></tr>
+            <tr><td>Avg latency</td><td>{{ s.avg_latency_ms }} ms</td></tr>
+          </table>
+        {% else %}
+          <p class="empty">No decisions yet under this variation.</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <h2>Recent decisions</h2>
+  <table class="recent">
+    <thead>
+      <tr><th>Branch</th><th>Amount</th><th>Flag</th><th>Outcome</th><th>Latency</th></tr>
+    </thead>
+    <tbody>
+      {% for d in recent %}
+        <tr class="{{ 'err' if d.errored else '' }}">
+          <td>{{ d.branch_id }}</td>
+          <td>&pound;{{ "%.2f"|format(d.amount) }}</td>
+          <td>{{ "ON" if d.flag_variation else "OFF" }}</td>
+          <td>{{ d.outcome }}</td>
+          <td>{{ d.latency_ms }} ms</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
