@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+venv/
+.venv/
+instance/
+quickapprove.db
+*.db
+.DS_Store
