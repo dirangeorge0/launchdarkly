@@ -56,7 +56,7 @@ def authorize():
 
     start = time.monotonic()
 
-    context = ld.build_branch_context(branch_id, region=region)
+    context = ld.build_branch_context(branch_id, region=region)  # kind=branch, keyed on branch_id
     instant_approval_on = ld.is_instant_approval_enabled(context)
 
     errored = random.random() < SIMULATED_ERROR_RATE

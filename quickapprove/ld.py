@@ -62,17 +62,14 @@ def init_client(sdk_key: str, wait_seconds: float = 5.0):
     return client
 
 
-def build_branch_context(branch_id: str, region: str = "", pilot: bool = False) -> Context:
+def build_branch_context(branch_id: str, region: str = "") -> Context:
     """
-    One context per branch. 'pilot' is a plain custom attribute here
-    for readability in logs/demo; targeting in the LD UI is done via a
-    segment (pilot-branches) keyed on branch_id, not on this attribute
-    - the attribute is not what drives the rollout, the segment is.
+    One context per branch, of kind 'branch'. Targeting in the LD UI
+    uses the 'pilot-branches' segment keyed on the branch key, so the
+    rollout decision lives in LaunchDarkly, not in this code.
+    'region' is accepted for logging and is not sent to LaunchDarkly.
     """
-    builder = Context.builder(branch_id).kind("branch")
-    builder.set("region", region)
-    builder.set("pilot", pilot)
-    return builder.build()
+    return Context.create(branch_id, "branch")
 
 
 def is_instant_approval_enabled(context: Context) -> bool:
