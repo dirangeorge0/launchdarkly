@@ -18,8 +18,7 @@ two decisions separate is deliberate - see the decision log.
 import logging
 import os
 
-import ldclient
-from ldclient import Context
+from ldclient import Context, LDClient
 from ldclient.config import Config
 
 log = logging.getLogger("quickapprove.ld")
@@ -46,11 +45,11 @@ def init_client(sdk_key: str, wait_seconds: float = 5.0):
     discovering that on the first real transaction.
     """
     global _client
-    config = Config(sdk_key)
-    ldclient.set_config(config)
-    client = ldclient.get()
+    # start_wait makes the constructor block up to wait_seconds for the
+    # first connection to LaunchDarkly. (Client.wait_for_initialization
+    # does not exist in SDK 9.x; this is the supported way.)
+    client = LDClient(Config(sdk_key), start_wait=wait_seconds)
 
-    client.wait_for_initialization(timeout=wait_seconds)
     if not client.is_initialized():
         log.warning(
             "LaunchDarkly client did NOT initialise within %ss. "
