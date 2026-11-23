@@ -1,3 +1,4 @@
 flask==3.0.3
 launchdarkly-server-sdk==9.19.0
 python-dotenv==1.0.1
+launchdarkly-observability==1.4.1

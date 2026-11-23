@@ -12,3 +12,8 @@ table.recent th { text-align: left; background: #0c2340; color: #fff; padding: 6
 table.recent td { padding: 6px 10px; border-bottom: 1px solid #eee; }
 tr.err { background: #fdf3f3; }
 .empty { color: #888; font-style: italic; }
+table.observe { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 0.5rem; }
+table.observe td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+table.observe td:last-child { text-align: right; font-weight: 600; }
+td.ok { color: #1c7a43; }
+td.bad { color: #b3261e; }

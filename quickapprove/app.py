@@ -22,13 +22,19 @@ import random
 import time
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
-
-import ld
-import store
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
+
+import ld  # noqa: E402
+
+# Order matters: the observability plugin instruments Flask by patching the
+# Flask class, so it has to be built BEFORE Flask is imported below.
+ld.enable_observability()
+
+from flask import Flask, jsonify, render_template, request  # noqa: E402
+
+import store  # noqa: E402
 
 app = Flask(__name__)
 
@@ -78,7 +84,7 @@ def authorize():
         latency_ms=latency_ms,
         errored=errored,
     )
-    ld.track_decision(context, outcome, amount, latency_ms, errored)
+    ld.track_decision(context, outcome, amount, latency_ms, errored, instant_approval=instant_approval_on)
 
     return jsonify(
         {
@@ -95,7 +101,20 @@ def authorize():
 def dashboard():
     stats = store.variation_stats()
     recent = store.recent_decisions(limit=25)
-    return render_template("dashboard.html", stats=stats, recent=recent, flag_key=ld.FLAG_KEY)
+    status = ld.status()
+    last_event = (
+        time.strftime("%H:%M:%S", time.localtime(status["last_event_ts"]))
+        if status["last_event_ts"]
+        else None
+    )
+    return render_template(
+        "dashboard.html",
+        stats=stats,
+        recent=recent,
+        flag_key=ld.FLAG_KEY,
+        ld_status=status,
+        last_event=last_event,
+    )
 
 
 if __name__ == "__main__":

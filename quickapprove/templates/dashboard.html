@@ -29,6 +29,17 @@
     {% endfor %}
   </div>
 
+  <h2>Observe: what is connected</h2>
+  <table class="observe">
+    <tbody>
+      <tr><td>LaunchDarkly SDK connected</td><td class="{{ 'ok' if ld_status.sdk_initialised else 'bad' }}">{{ "Yes" if ld_status.sdk_initialised else "No (failing closed to manual review)" }}</td></tr>
+      <tr><td>Observability plugin (errors, logs, traces, metrics)</td><td class="{{ 'ok' if ld_status.observability_plugin else 'bad' }}">{{ "On" if ld_status.observability_plugin else "Off" }}</td></tr>
+      <tr><td><code>authorization-decision</code> events queued since start</td><td>{{ ld_status.events_queued }}</td></tr>
+      <tr><td>Last event queued</td><td>{{ last_event if last_event else "None yet" }}</td></tr>
+    </tbody>
+  </table>
+  <p class="sub">The numbers in the cards above come from a local SQLite file, and the processor errors are simulated. "Queued" means the app handed the event to the SDK. It does not prove LaunchDarkly received it. To confirm, see <code>OBSERVE.md</code>: the flag's Change history, the Debugger, and the Observability pages in LaunchDarkly.</p>
+
   <h2>Recent decisions</h2>
   <table class="recent">
     <thead>

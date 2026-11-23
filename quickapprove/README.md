@@ -33,7 +33,7 @@ Run the app:
 python app.py
 ```
 
-Open `http://localhost:5050/dashboard` for the Observe view.
+Open `http://localhost:5050/dashboard` for the Observe view. See [OBSERVE.md](OBSERVE.md) for what Observe covers and how to check it in LaunchDarkly.
 
 ## LaunchDarkly configuration
 
@@ -44,7 +44,8 @@ The app expects the following in the **Test** environment:
 | Flag | `instant-approval` (boolean) | Default off |
 | Segment | `pilot-branches` | Branch keys for the pilot group |
 | Flag rule | Serve `true` when context is in `pilot-branches` | Context kind: `branch` |
-| Metric / event | `authorization-decision` | Custom event with outcome, amount, latency, error |
+| Metric / event | `authorization-decision` | Custom event with outcome, amount, latency, error. Not yet turned into a LaunchDarkly metric. |
+| Observability | Observability plugin | Optional. Sends data to LaunchDarkly Observability, which may need enabling on your plan. Set `LD_OBSERVABILITY=off` to run without it. |
 
 Test it: send a request with a branch in `pilot-branches`, then confirm the flag shows as on for that branch.
 
@@ -58,7 +59,7 @@ curl -X POST http://localhost:5050/authorize \
 
 1. **Baseline:** flag off. Payments go to manual review.
 2. **Pilot:** turn the flag on for `pilot-branches`. Pilot branches auto-approve payments up to £1,000. Other branches are unchanged.
-3. **Observe:** the dashboard compares error rate, latency and approval rate by flag variation.
+3. **Observe:** the dashboard compares error rate, latency and approval rate by flag variation, and its Observe panel shows what is connected to LaunchDarkly.
 4. **Rollback:** turn the flag off. Pilot branches return to manual review within seconds, with no code change.
 
 ## Design decisions
