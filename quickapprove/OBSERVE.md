@@ -37,24 +37,29 @@ pip install -r requirements.txt
 
 ## How to check it in LaunchDarkly
 
-Run the app, send some payments (see the README), then check each item. Tick them off as you confirm them.
+Run the app, send some payments (see the README), then check each item. Ticked items were confirmed in the Test environment on 23 Nov 2026.
 
-- [ ] **Change history.** Open the `instant-approval` flag and its Change history. Switch the flag off and on. Each change should appear with your name and a time.
-- [ ] **Contexts.** Open Contexts. The `branch` kind and the branch keys you sent should be listed.
-- [ ] **Observability.** Open Observability, then Explore. Look for the `quickapprove` service. Check Traces for `POST /authorize` and Logs for the app's log lines.
-- [ ] **Metrics.** Look for `quickapprove.decisions` in Observability. Group or filter by `instant_approval` to compare flag on and flag off.
-- [ ] **Custom event.** Open Measurement, then Metrics, and create a custom metric on the event key `authorization-decision`. Use the numeric value option for average latency. Confirm the event is received.
-- [ ] **Rollback story.** With traffic running, switch the flag off. The dashboard's flag-on count should stop growing and the flag-off count should start growing.
+- [x] **Change history.** Open the `instant-approval` flag and its Change history. Each switch of the flag appears with the name of the person who made it and a time.
+- [x] **Contexts.** Open Contexts. The `branch` kind and the branch keys sent by the app are listed. (The kind can take a few minutes to appear the first time.)
+- [x] **Logs.** Open Observability, then Explore, then Logs. The app's log lines arrive, including each `POST /authorize` call and "Started LaunchDarkly Client: OK".
+- [x] **Metrics, flag on versus off.** Open Observability, then Explore, then Observability metrics. Filter on `metric_name` `quickapprove.decisions` and group by `instant_approval`. The chart splits into `true` and `false`. `quickapprove.decision.latency_ms` and `http.server.duration` are listed too. Note that the counts are metric export batches, not payment counts.
+- [x] **Rollback story.** With the flag on, a pilot branch's payments of 250 GBP return `AUTO_APPROVED` and a 5,000 GBP payment returns `MANUAL_REVIEW`. After switching the flag off, all of them return `MANUAL_REVIEW`.
+- [ ] **Traces.** Open Observability, then Explore, then Traces, and look for `POST /authorize` spans. The chart showed no spans when last checked, although a count of 20 appeared in the table beneath it. Not confirmed.
+- [ ] **Custom event metric.** Open Measurement, then Metrics, create a custom metric on the event key `authorization-decision` (use the numeric value option for average latency), and confirm LaunchDarkly receives the event. Not done yet.
 
 ## Status of the evidence
 
 | Item | Status |
 |---|---|
-| App starts with the plugin, fails closed, and the dashboard panel renders | Tested in a sandbox that could not reach LaunchDarkly |
-| Flask requests are instrumented | Tested: the app object is built from the instrumented Flask class when the plugin is created first |
-| Events and observability data arrive in LaunchDarkly | **Not confirmed.** Tick the checklist above on a machine that can reach LaunchDarkly |
-| A LaunchDarkly metric built on `authorization-decision` | **Not built yet** |
-| Observability available on this LaunchDarkly plan | **Not confirmed** |
+| App starts with the plugin, fails closed, and the dashboard panel renders | Tested in a sandbox that could not reach LaunchDarkly, and on a Mac with a live key |
+| Logs from the app arrive in LaunchDarkly | **Confirmed** |
+| `quickapprove.decisions` arrives and splits by `instant_approval` | **Confirmed** |
+| Flask requests are instrumented | Partly confirmed: `http.server.duration` metrics arrive. Traces are not confirmed |
+| Observability works in this LaunchDarkly account | **Confirmed** for the Test environment. The plan tier is not known |
+| A LaunchDarkly metric built on the `authorization-decision` event | **Not built yet** |
+| Local override that forces manual review without LaunchDarkly | **Not built yet** (the first thing I would build next) |
+
+So Observe is **partly** evidenced: flag changes can be tied to system behaviour in LaunchDarkly, but the custom event metric and traces are still open.
 
 ## Things to know before using this in a bank
 
